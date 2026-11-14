@@ -60,4 +60,4 @@ foreach ($name in $changes.Keys) {
 [IO.File]::WriteAllText($preferences, $content, $encoding)
 & (Join-Path $VlcDirectory 'vlc-cache-gen.exe') (Join-Path $VlcDirectory 'plugins')
 if ($LASTEXITCODE) { throw 'VLC could not regenerate its plugin cache. See docs/INSTALL.md.' }
-Write-Host 'VLC WatchKit is installed. Launch VLC and open View > VLC WatchKit Settings.'
+Write-Host 'WatchKit is installed. Launch VLC and open View > WatchKit Settings.'

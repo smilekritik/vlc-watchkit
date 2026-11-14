@@ -1,6 +1,6 @@
 <div align="center">
 
-# VLC WatchKit
+# WatchKit for VLC
 
 **Discord Rich Presence, precise playback speed, and bookmarks for VLC on Windows.**
 
@@ -26,13 +26,17 @@ The fullscreen controls show speed and time remaining alongside VLC's usual play
 
 ## Install
 
-1. On Windows 10 or 11 x64, run [vlc-3.0.24-win64.exe](https://download.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe) and install [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows). Close VLC.
-2. Clone this repository or use **Code > Download ZIP** and extract it. Open PowerShell 7 in the folder containing this README. For a ZIP download, see [Prepare the scripts](docs/INSTALL.md#prepare-the-scripts).
-3. Run `./scripts/build.ps1 -Test` to build the DLL and run the unit checks.
-4. Open PowerShell 7 as administrator in the same folder and run `./scripts/install.ps1`.
-5. Start VLC. Open **View > VLC WatchKit Settings** to change shortcuts and set up Discord.
+1. Install [VLC 3.0.24 x64](https://download.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe) and [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows) on Windows 10 or 11 x64. Close VLC.
+2. Download the Windows x64 ZIP under **Assets** on the [latest release](https://github.com/smilekritik/vlc-watchkit/releases/latest) and extract it.
+3. Open PowerShell 7 as administrator in the extracted folder and run the commands below.
+4. Start VLC and open **View > WatchKit Settings**.
 
-See [Installation and removal](docs/INSTALL.md) for custom paths, data backups, and troubleshooting.
+```powershell
+Get-ChildItem ./scripts -Filter *.ps1 -File | Unblock-File
+./scripts/install.ps1
+```
+
+See [Installation and removal](docs/INSTALL.md) for updating, building from source, custom paths, and troubleshooting.
 
 ## Light and dark themes
 
@@ -57,7 +61,7 @@ Run one command, then reopen VLC. Dark mode uses VLC's dark palette and Qt Fusio
 | NumPad 9 | Pause and add a timestamped bookmark with a comment |
 | Ctrl+NumPad 9 | Browse all saved bookmarks |
 
-To change a shortcut, double-click its row in **View > VLC WatchKit Settings**, press the new combination, then click **Save**. **Restore defaults** resets the shortcut list. Shortcuts apply when a VLC player window has focus. Matching shortcuts take priority over VLC's original actions.
+To change a shortcut, double-click its row in **View > WatchKit Settings**, press the new combination, then click **Save**. **Restore defaults** resets the shortcut list. Shortcuts apply when a VLC player window has focus. Matching shortcuts take priority over VLC's original actions.
 
 Turn on Num Lock for the default bookmark shortcuts.
 
@@ -67,7 +71,7 @@ VLC remembers the last video speed you set with the shortcuts or the Playback me
 
 If VLC is idle, opening a video from File Explorer starts it. If a video is playing or paused, opening another file appends it to the queue. When a single local video is playing, the addon can queue consecutive episodes in its folder. It matches names like `Show Name S01E03.mkv` and `Show.Name.S01E04.1080p.mp4`. It stops at the first missing or ambiguous episode and follows the order of any playlist you already opened.
 
-If you reopen an unfinished video, it plays from the beginning while a centered prompt offers to continue from your last position. You can close that prompt and keep watching from the beginning. Start VLC without a file to see the latest available unfinished video, or use **View > VLC WatchKit Continue Watching** when the player is idle.
+If you reopen an unfinished video, it plays from the beginning while a centered prompt offers to continue from your last position. You can close that prompt and keep watching from the beginning. Start VLC without a file to see the latest available unfinished video, or use **View > WatchKit Continue Watching** when the player is idle.
 
 NumPad 9 captures the timestamp, pauses a playing video, and opens the comment window. **Save** or **Cancel** returns you to playback if the video was playing before. **All bookmarks** supports search, editing, and opening the saved moment. If a file is deleted or moved, the bookmark still shows the title, time, and comment.
 
@@ -75,7 +79,9 @@ NumPad 9 captures the timestamp, pauses a playing video, and opens the comment w
 
 Discord sharing is optional. Follow [Discord setup from scratch](docs/DISCORD.md) to create an application, copy its public Application ID, add optional artwork, and verify your first status using the Discord desktop app.
 
-The card shows the video title, episode, current position, duration, speed, and remaining time at that speed. On pause, a ⏸ icon appears and the playback times freeze. Press **NumPad `*`** to clear the card and keep sharing off until you turn it back on. Stopping or closing VLC also clears the card. Video files, viewing history, and bookmark comments stay on your computer.
+The card shows the video title, episode, current position, duration, speed, and remaining time at that speed. On pause, a ⏸ icon appears and the playback times freeze. Press **NumPad `*`** to clear the card and keep sharing off until you turn it back on. Stopping or closing VLC also clears the card. Viewing history and bookmark comments stay on your computer. Optional [frame previews](docs/DISCORD.md#show-preview-images) send individual frames to an uploader you configure.
+
+For browser playback, use [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit). Its **Import from VLC** button reuses your saved Discord Application ID on the same Windows account.
 
 ## Contributing
 
@@ -83,4 +89,4 @@ See [Architecture and tests](docs/DEVELOPMENT.md) for the source layout, build, 
 
 Report bugs with your Windows and VLC versions, active theme, reproduction steps, and relevant lines from VLC's **Tools > Messages** window. Remove private filenames and paths from shared logs.
 
-Released under the [GNU General Public License v2.0 or later](LICENSE). VLC WatchKit is an independent project for VLC media player.
+Released under the [GNU General Public License v2.0 or later](LICENSE). WatchKit is an independent project for VLC media player.

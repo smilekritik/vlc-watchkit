@@ -51,7 +51,7 @@ try {
     $sources = @(Get-ChildItem src -Filter *.cpp | ForEach-Object FullName)
     Invoke-Native "$bin/clang++.exe" ($flags + @('-D__PLUGIN__', '-isystem', ".deps/vlc-$version/include",
         '-isystem', '.deps/json', '-shared', '-static', '-Wl,--gc-sections', '-Wl,--strip-all', '-Wl,--no-insert-timestamp',
-        '-o', 'build/libvlc_addon_plugin.dll') + $sources + @('build/libvlccore.a', '-lcomctl32', '-lshell32', '-lole32', '-lgdi32', '-ldwmapi', '-luxtheme', '-loleacc', '-loleaut32'))
+        '-o', 'build/libvlc_addon_plugin.dll') + $sources + @('build/libvlccore.a', '-lcomctl32', '-lshell32', '-lole32', '-lgdi32', '-ldwmapi', '-luxtheme', '-loleacc', '-loleaut32', '-lwinhttp'))
     if ($Test) {
         $unitSources = @('tests/unit.cpp', 'src/model.cpp', 'src/store.cpp')
         Invoke-Native "$bin/clang++.exe" ($flags + @('-isystem', '.deps/json', '-Isrc', '-static', '-o', 'build/unit.exe') + $unitSources + @('-luser32'))

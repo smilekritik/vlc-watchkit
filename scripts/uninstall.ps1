@@ -36,4 +36,4 @@ foreach ($file in $files) { if (Test-Path -LiteralPath $file) { Remove-Item -Lit
 & (Join-Path $VlcDirectory 'vlc-cache-gen.exe') (Join-Path $VlcDirectory 'plugins')
 if ($LASTEXITCODE) { throw 'VLC could not regenerate its plugin cache.' }
 if (Test-Path -LiteralPath $receipt) { Remove-Item -LiteralPath $receipt }
-Write-Host "VLC WatchKit is uninstalled. Bookmarks and settings are in $dataDirectory."
+Write-Host "WatchKit is uninstalled. Bookmarks and settings are in $dataDirectory."

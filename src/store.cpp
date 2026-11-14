@@ -100,6 +100,7 @@ Store::Store(fs::path directory) : directory_(std::move(directory))
         loaded.video_speed = std::clamp(data.value("video_speed", 100), min_manual_speed, max_video_speed);
         loaded.application_id = data.value("application_id", "");
         loaded.large_image = data.value("large_image", "");
+        loaded.preview_upload_url = data.value("preview_upload_url", "");
         if (!loaded.application_id.empty() && !valid_application_id(loaded.application_id))
             loaded.application_id.clear();
         const auto& bindings = data.at("bindings");
@@ -155,7 +156,8 @@ bool Store::save_settings() const
         bindings.push_back({{"key", item.key}, {"modifiers", item.modifiers}});
     return write(directory_ / L"settings.json", {
         {"version", 2}, {"discord_enabled", settings.discord_enabled}, {"video_speed", settings.video_speed},
-        {"application_id", settings.application_id}, {"large_image", settings.large_image}, {"bindings", std::move(bindings)}
+        {"application_id", settings.application_id}, {"large_image", settings.large_image},
+        {"preview_upload_url", settings.preview_upload_url}, {"bindings", std::move(bindings)}
     });
 }
 

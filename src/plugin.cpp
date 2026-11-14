@@ -1,5 +1,6 @@
 #define MODULE_STRING "vlc_addon"
 #include "discord.hpp"
+#include "preview.hpp"
 #include "ui.hpp"
 #include "windows.hpp"
 #include <algorithm>
@@ -7,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <ctime>
+#include <future>
 #include <thread>
 #include <utility>
 
@@ -91,6 +93,7 @@ private:
     void play_if_idle(int id);
     void record(bool final);
     void publish();
+    void update_frame_preview(bool running);
     void overlay(const std::wstring& message);
     void act(Action action);
     void change_speed(int step);
@@ -136,6 +139,11 @@ private:
     bool startup_checked_ = false, bookmark_playing_ = false, resume_choice_ = false;
     Clock::time_point last_sample_{};
     std::optional<PreviewImages> previews_;
+    std::future<std::string> frame_upload_;
+    std::string uploaded_frame_;
+    std::wstring upload_endpoint_;
+    Clock::time_point next_frame_{};
+    std::size_t video_generation_ = 0, upload_generation_ = 0;
     std::optional<int> requested_speed_;
     std::optional<Clock::time_point> next_save_, idle_append_, discord_refresh_, find_window_ = Clock::now();
 };
@@ -230,7 +238,7 @@ void Addon::run() noexcept
     try {
         Store storage(data_directory());
         store_ = &storage;
-        if (storage.has_read_errors()) msg_Warn(interface_, "VLC WatchKit could not read one or more data files");
+        if (storage.has_read_errors()) msg_Warn(interface_, "WatchKit could not read one or more data files");
         Discord discord;
         discord_ = &discord;
         MSG msg{};
@@ -238,7 +246,7 @@ void Addon::run() noexcept
         PlayerWindows windows(GetCurrentThreadId());
         windows_ = &windows;
         windows.bindings(store_->settings.bindings);
-        msg_Info(interface_, "VLC WatchKit loaded");
+        msg_Info(interface_, "WatchKit loaded");
         try {
             while (!stopping_) {
                 tick();
@@ -262,9 +270,9 @@ void Addon::run() noexcept
             }
             finish();
         } catch (const std::exception& error) {
-            msg_Err(interface_, "VLC WatchKit worker stopped: %s", error.what());
+            msg_Err(interface_, "WatchKit worker stopped: %s", error.what());
         } catch (...) {
-            msg_Err(interface_, "VLC WatchKit worker stopped");
+            msg_Err(interface_, "WatchKit worker stopped");
         }
         if (input_) var_DelCallback(input_.get(), "intf-event", media_event, this);
         input_.reset();
@@ -272,9 +280,9 @@ void Addon::run() noexcept
         ui_.reset();
         discord.update(store_->settings.application_id, {});
     } catch (const std::exception& error) {
-        msg_Err(interface_, "VLC WatchKit could not start: %s", error.what());
+        msg_Err(interface_, "WatchKit could not start: %s", error.what());
     } catch (...) {
-        msg_Err(interface_, "VLC WatchKit could not start");
+        msg_Err(interface_, "WatchKit could not start");
     }
 }
 
@@ -397,6 +405,9 @@ void Addon::finish()
         ui_->playback_status(nullptr, {});
     }
     discord_refresh_.reset();
+    ++video_generation_;
+    uploaded_frame_.clear();
+    next_frame_ = {};
     discord_->update(store_->settings.application_id, {});
 }
 
@@ -565,6 +576,37 @@ void Addon::record(bool final)
     }
 }
 
+void Addon::update_frame_preview(bool running)
+{
+    const auto endpoint = wide(store_->settings.preview_upload_url);
+    if (endpoint != upload_endpoint_) {
+        upload_endpoint_ = endpoint;
+        ++video_generation_;
+        uploaded_frame_.clear();
+        next_frame_ = {};
+    }
+    if (frame_upload_.valid() && frame_upload_.wait_for(0s) == std::future_status::ready) {
+        try {
+            auto url = frame_upload_.get();
+            if (!url.empty() && upload_generation_ == video_generation_) uploaded_frame_ = std::move(url);
+        } catch (const std::exception& error) {
+            msg_Warn(interface_, "WatchKit frame upload failed: %s", error.what());
+        }
+    }
+    if (!running || upload_endpoint_.empty() || frame_upload_.valid() || Clock::now() < next_frame_)
+        return;
+    if (auto* output = input_GetVout(input_.get())) {
+        next_frame_ = Clock::now() + 60s;
+        try {
+            frame_upload_ = std::async(std::launch::async, upload_video_frame, output, upload_endpoint_);
+            upload_generation_ = video_generation_;
+        } catch (const std::exception& error) {
+            vlc_object_release(output);
+            msg_Warn(interface_, "WatchKit could not start a frame upload: %s", error.what());
+        }
+    }
+}
+
 void Addon::publish()
 {
     const auto& settings = store_->settings;
@@ -575,7 +617,8 @@ void Addon::publish()
         discord_->update(settings.application_id, {});
         return;
     }
-    discord_refresh_ = running && video_ ? std::optional(Clock::now() + 5s) : std::nullopt;
+    if (video_) update_frame_preview(running);
+    discord_refresh_ = video_ && (running || frame_upload_.valid()) ? std::optional(Clock::now() + 5s) : std::nullopt;
     auto* item = input_GetItem(input_.get());
     auto title = take(input_item_GetTitle(item));
     auto detail = take(input_item_GetArtist(item));
@@ -601,7 +644,7 @@ void Addon::publish()
     const auto current_speed = speed();
     if (video_) {
         if (!previews_) previews_ = load_preview_images(fs::path(path_));
-        image = preview_image(*previews_, current, image);
+        image = preview_image(*previews_, current, uploaded_frame_.empty() ? image : uploaded_frame_);
         if (!detail.empty()) title = activity_video_title(title, detail) + " \xC2\xB7 " + detail;
         if (paused) title += " \xC2\xB7 " + utf8(L"\u23f8\ufe0e");
         detail = utf8(activity_playback_status(current_speed, duration, current));
@@ -613,7 +656,7 @@ void Addon::publish()
         ? std::chrono::ceil<std::chrono::seconds>(
               std::chrono::system_clock::now().time_since_epoch() + std::chrono::microseconds(remaining)).count()
         : 0;
-    discord_->update(settings.application_id, Activity{title, detail, image, paused || video_ ? 3 : 2, end});
+    discord_->update(settings.application_id, Activity{"VLC · " + title, detail, image, paused || video_ ? 3 : 2, end});
 }
 
 void Addon::overlay(const std::wstring& message)
@@ -758,7 +801,7 @@ int open(vlc_object_t* object) noexcept
         interface->p_sys = reinterpret_cast<intf_sys_t*>(new Addon(interface));
         return VLC_SUCCESS;
     } catch (const std::exception& error) {
-        msg_Err(interface, "VLC WatchKit could not load: %s", error.what());
+        msg_Err(interface, "WatchKit could not load: %s", error.what());
         return VLC_EGENERIC;
     } catch (...) {
         return VLC_EGENERIC;
@@ -774,7 +817,7 @@ void close(vlc_object_t* object) noexcept
 }
 
 vlc_module_begin()
-    set_shortname("VLC WatchKit")
+    set_shortname("WatchKit")
     set_description("Playback controls, bookmarks, and Discord Rich Presence")
     set_capability("interface", 0)
     set_callbacks(addon::open, addon::close)

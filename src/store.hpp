@@ -30,6 +30,7 @@ struct Settings {
     int video_speed = 100;
     std::string application_id;
     std::string large_image;
+    std::string preview_upload_url;
     Bindings bindings = default_bindings();
 };
 bool valid_application_id(std::string_view id);

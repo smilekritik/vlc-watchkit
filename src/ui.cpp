@@ -15,7 +15,7 @@ constexpr UINT opacity_interval_ms = 16;
 constexpr wchar_t window_class[] = L"VLCAddonWindow";
 enum Id {
     confirm = 100, dismiss, notes, search, list, open_item, edit_item, remove_item, bind_list, change_bind,
-    reset_binds, application, image, publish, capture, save_settings, publish_label
+    reset_binds, application, image, publish, capture, save_settings, publish_label, preview_upload
 };
 enum class Kind { prompt, add, library, edit, settings, capture, status, speed };
 
@@ -190,7 +190,7 @@ struct Ui::Impl {
                 window->heading_label = window->secondary_label = nullptr;
             }
         } catch (...) {
-            MessageBoxW(hwnd, L"The operation could not be completed.", L"VLC WatchKit", MB_OK | MB_ICONERROR);
+            MessageBoxW(hwnd, L"The operation could not be completed.", L"WatchKit", MB_OK | MB_ICONERROR);
             return 0;
         }
         return DefWindowProcW(hwnd, message, wp, lp);
@@ -780,7 +780,7 @@ struct Ui::Impl {
 
     void show_settings(const Settings& value)
     {
-        if (!create(settings_window, L"VLC WatchKit Settings", 486, 466))
+        if (!create(settings_window, L"WatchKit Settings", 486, 524))
             return;
         draft = value;
         label(settings_window, L"Discord Application ID", 14, 12, 206);
@@ -793,13 +793,15 @@ struct Ui::Impl {
             widget(settings_window, L"STATIC", L"Share playback and pause status", SS_NOTIFY, publish_label,
                    34, 70, 345, 22);
         SendMessageW(check, BM_SETCHECK, value.discord_enabled ? BST_CHECKED : BST_UNCHECKED, 0);
-        label(settings_window, L"Keyboard shortcuts", 14, 106, 442);
-        table(settings_window, bind_list, 14, 128, 458, 240, {{L"Action", 320}, {L"Shortcut", 118}});
+        label(settings_window, L"Video frame upload URL (optional, HTTPS)", 14, 98, 458);
+        input(settings_window, wide(value.preview_upload_url).c_str(), preview_upload, 14, 121, 458, 24);
+        label(settings_window, L"Keyboard shortcuts", 14, 164, 442);
+        table(settings_window, bind_list, 14, 186, 458, 240, {{L"Action", 320}, {L"Shortcut", 118}});
         refresh_bindings(0);
-        button(settings_window, L"Change shortcut", change_bind, 14, 379, 124);
-        button(settings_window, L"Restore defaults", reset_binds, 146, 379, 126);
-        button(settings_window, L"Save", save_settings, 282, 425, 92, true);
-        button(settings_window, L"Cancel", dismiss, 382, 425, 90);
+        button(settings_window, L"Change shortcut", change_bind, 14, 437, 124);
+        button(settings_window, L"Restore defaults", reset_binds, 146, 437, 126);
+        button(settings_window, L"Save", save_settings, 282, 483, 92, true);
+        button(settings_window, L"Cancel", dismiss, 382, 483, 90);
         show(settings_window, true);
     }
 
@@ -819,7 +821,7 @@ struct Ui::Impl {
         if (!supported_binding(binding)) return;
         const auto existing = std::find(draft.bindings.begin(), draft.bindings.end(), binding);
         if (existing != draft.bindings.end() && existing != draft.bindings.begin() + binding_index) {
-            MessageBoxW(capture_window.hwnd, L"That shortcut is already assigned to another VLC WatchKit action.",
+            MessageBoxW(capture_window.hwnd, L"That shortcut is already assigned to another WatchKit action.",
                         L"Shortcut already used", MB_OK | MB_ICONINFORMATION);
             return;
         }
@@ -832,6 +834,12 @@ struct Ui::Impl {
     {
         draft.application_id = utf8(get_text(GetDlgItem(settings_window.hwnd, application)));
         draft.large_image = utf8(get_text(GetDlgItem(settings_window.hwnd, image)));
+        draft.preview_upload_url = utf8(get_text(GetDlgItem(settings_window.hwnd, preview_upload)));
+        if (!draft.preview_upload_url.empty() && !draft.preview_upload_url.starts_with("https://")) {
+            MessageBoxW(settings_window.hwnd, L"Enter an HTTPS upload URL, or leave it blank to turn off frame uploads.",
+                        L"Invalid upload URL", MB_OK | MB_ICONINFORMATION);
+            return;
+        }
         draft.discord_enabled = SendMessageW(GetDlgItem(settings_window.hwnd, publish), BM_GETCHECK, 0, 0) == BST_CHECKED;
         if (!draft.application_id.empty() && !valid_application_id(draft.application_id)) {
             MessageBoxW(settings_window.hwnd, L"Enter the numeric Application ID from the Discord Developer Portal.",
@@ -846,7 +854,7 @@ struct Ui::Impl {
 
     static void report_save_error(HWND window)
     {
-        MessageBoxW(window, L"VLC WatchKit could not save your changes. Check the local data directory.",
+        MessageBoxW(window, L"WatchKit could not save your changes. Check the local data directory.",
                     L"Save failed", MB_OK | MB_ICONERROR);
     }
 

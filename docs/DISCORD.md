@@ -5,14 +5,14 @@ Install WatchKit using the [installation guide](INSTALL.md) and sign in to the D
 ## Create a Discord application
 
 1. Open the [Discord Developer Portal](https://discord.com/developers/applications) and sign in.
-2. Select **New Application**. Choose the name you want people to see, such as `VLC WatchKit`. Discord uses this application name in the activity heading. To change it later, edit the application name in the Developer Portal and save.
+2. Select **New Application** and name it `WatchKit`. If you already use an application for VLC, rename it to `WatchKit` and keep its Application ID. To reuse this ID in [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit), open its popup and click **Import from VLC** on the same Windows account.
 3. Open **General Information** and copy the **Application ID**. This is the public numeric ID. You can complete this setup without a bot account, bot token, or client secret.
 4. If you want artwork, open **Rich Presence > Art Assets**, upload an image you have permission to use, save it, and copy its asset key, such as `vlc`. Use the lowercase key shown in the portal. [Discord's asset guide](https://docs.discord.com/developers/discord-social-sdk/development-guides/setting-rich-presence#uploading-assets)
 
 ## Connect VLC
 
 1. Keep the Discord desktop client running.
-2. In VLC, open **View > VLC WatchKit Settings**.
+2. In VLC, open **View > WatchKit Settings**.
 3. Paste the **Application ID**. If you uploaded an asset, enter its key in **Large image key**.
 4. Enable **Share playback and pause status** and click **Save**.
 5. Start a video, then open your Discord profile to check the activity. If Discord hides it, check **User Settings > Activity Privacy** and enable activity sharing.
@@ -36,6 +36,10 @@ The card heading comes from the name you registered in the Developer Portal. The
 The first line below the application name shows the video title and episode label when available. The next line shows the current position, total duration, playback speed, and estimated time remaining. It uses monospaced Unicode digits to reduce horizontal shifting as the numbers change. The addon sends the position and remaining time together about every five seconds during playback. Seeks and speed changes update the card as soon as the Discord update budget allows.
 
 ## Show preview images
+
+To share frames automatically, enter your uploader's URL in **Video frame upload URL**. WatchKit takes the current frame from VLC's video output during local video playback, at most once every 60 seconds. It sends a proportional JPEG with a longest side of 512 pixels. On pause the card keeps the last frame.
+
+The uploader must accept an HTTPS `POST` with a raw `image/jpeg` body and return a successful response containing only the public HTTPS image URL as text. Serve a distinct image URL for each frame so Discord can fetch the new image. WatchKit has no built-in upload service. Leave the field blank to disable uploads. Only configure a server where you want to send frames from your local videos.
 
 To rotate preview images, put an optional UTF-8 text file next to the video. For `Episode.mp4`, name it `Episode.mp4.discord-previews.txt`. List the video minute (starting at zero) followed by a space and a Discord asset key or a public HTTPS image URL:
 
