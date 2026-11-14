@@ -2,12 +2,9 @@
 
 Install WatchKit using the [installation guide](INSTALL.md) and sign in to the Discord desktop app. The plugin connects to Discord on the same PC using the Application ID you configure below.
 
-## Create a Discord application
+## Get an Application ID
 
-1. Open the [Discord Developer Portal](https://discord.com/developers/applications) and sign in.
-2. Select **New Application** and name it `WatchKit`. If you already use an application for VLC, rename it to `WatchKit` and keep its Application ID. To reuse this ID in [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit), open its popup and click **Import from VLC** on the same Windows account.
-3. Open **General Information** and copy the **Application ID**. This is the public numeric ID. You can complete this setup without a bot account, bot token, or client secret.
-4. If you want artwork, open **Rich Presence > Art Assets**, upload an image you have permission to use, save it, and copy its asset key, such as `vlc`. Use the lowercase key shown in the portal. [Discord's asset guide](https://docs.discord.com/developers/discord-social-sdk/development-guides/setting-rich-presence#uploading-assets)
+Follow the [shared WatchKit guide](https://github.com/smilekritik/browser-watchkit#get-a-discord-application-id) to create a Discord application and copy its Application ID. Use that same ID in VLC and Chrome.
 
 ## Connect VLC
 

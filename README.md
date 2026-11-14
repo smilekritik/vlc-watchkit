@@ -81,7 +81,7 @@ Discord sharing is optional. Follow [Discord setup from scratch](docs/DISCORD.md
 
 The card shows the video title, episode, current position, duration, speed, and remaining time at that speed. On pause, a ⏸ icon appears and the playback times freeze. Press **NumPad `*`** to clear the card and keep sharing off until you turn it back on. Stopping or closing VLC also clears the card. Viewing history and bookmark comments stay on your computer. Optional [frame previews](docs/DISCORD.md#show-preview-images) send individual frames to an uploader you configure.
 
-For browser playback, use [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit). Its **Import from VLC** button reuses your saved Discord Application ID on the same Windows account.
+For browser playback, use [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit). Its **Import saved ID** button reuses your saved Discord Application ID on the same Windows account.
 
 ## Contributing
 
