@@ -8,11 +8,15 @@
 [![VLC](https://img.shields.io/badge/VLC-3.0.24-FF8800)](docs/INSTALL.md#requirements)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-2EA043)](LICENSE)
 
-[Install](#install) · [Shortcuts](#default-shortcuts) · [Playback and bookmarks](#playback-and-bookmarks) · [Discord setup](docs/DISCORD.md)
+[Download for Windows](https://github.com/smilekritik/vlc-watchkit/releases/latest) · [Install](#install) · [Discord setup](docs/DISCORD.md) · [Shortcuts](#default-shortcuts) · [Playback and bookmarks](#playback-and-bookmarks) · [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit)
 
 </div>
 
 VLC loads WatchKit automatically when it opens, including when a file is opened from Explorer. The plugin runs inside VLC and exits with it.
+
+## WatchKit for Chrome and VLC
+
+Use the same Discord application in both editions. Enter the same **Application ID** in Chrome and VLC to publish playback under one name on your Discord profile. You only need to create the application once. [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit)
 
 ## Screenshots
 
@@ -80,8 +84,6 @@ NumPad 9 captures the timestamp, pauses a playing video, and opens the comment w
 Discord sharing is optional. Follow [Discord setup from scratch](docs/DISCORD.md) to create an application, copy its public Application ID, add optional artwork, and verify your first status using the Discord desktop app.
 
 The card shows the video title, episode, current position, duration, speed, and remaining time at that speed. On pause, a ⏸ icon appears and the playback times freeze. Press **NumPad `*`** to clear the card and keep sharing off until you turn it back on. Stopping or closing VLC also clears the card. Viewing history and bookmark comments stay on your computer. Optional [frame previews](docs/DISCORD.md#show-preview-images) send individual frames to an uploader you configure.
-
-For browser playback, use [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit). Its **Import saved ID** button reuses your saved Discord Application ID on the same Windows account.
 
 ## Contributing
 

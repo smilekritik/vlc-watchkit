@@ -1,6 +1,8 @@
 # Set up Discord Rich Presence
 
-Install WatchKit using the [installation guide](INSTALL.md) and sign in to the Discord desktop app. Follow the illustrated steps below to get the Application ID, then enter it in WatchKit Settings.
+Install WatchKit for VLC, then follow the steps below to get your Application ID. [Installation guide](INSTALL.md)
+
+If you also use WatchKit for Chrome on the same Windows account, you can reuse your VLC setup from **Settings → Discord → Import ID from WatchKit for VLC**. If you set up Chrome first, paste its Application ID into VLC. [WatchKit for Chrome setup](https://github.com/smilekritik/browser-watchkit#connect-discord-in-chrome)
 
 ## Get a Discord Application ID
 
@@ -12,15 +14,17 @@ Use the same Application ID for WatchKit in Chrome and VLC. If you already have 
 
 ![Where to create an application and where to copy its ID in the Discord Developer Portal](screenshots/discord-application-id.svg)
 
-The Application ID is the public numeric identifier. For optional fallback artwork, upload an image under **Rich Presence > Art Assets** in the same application and copy its asset key.
+The Application ID is public. You can set up Rich Presence with the ID alone, without creating a bot or copying a token. For optional fallback artwork, upload an image under **Rich Presence → Art Assets** in that application and copy its asset key.
 
 ## Connect VLC
 
-1. Keep the Discord desktop client running.
-2. In VLC, open **View > WatchKit Settings**.
+1. Open the Discord desktop app and sign in.
+2. In VLC, open **View → WatchKit Settings**.
 3. Paste the **Application ID**. If you uploaded an asset, enter its key in **Large image key**.
 4. Enable **Share playback and pause status** and click **Save**.
-5. Start a video, then open your Discord profile to check the activity. If Discord hides it, check **User Settings > Activity Privacy** and enable activity sharing.
+5. Start a video, then open your Discord profile to check the activity.
+
+If the card is missing, open Discord's **User Settings → Activity Privacy** and enable activity sharing. Check that WatchKit has the Application ID from **General Information**.
 
 ![Example of a working Discord activity card for VLC playback](screenshots/discord-presence-card.png)
 
