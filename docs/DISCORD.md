@@ -1,0 +1,48 @@
+# Set up Discord Rich Presence
+
+Install WatchKit using the [installation guide](INSTALL.md) and sign in to the Discord desktop app. The plugin connects to Discord on the same PC using the Application ID you configure below.
+
+## Create a Discord application
+
+1. Open the [Discord Developer Portal](https://discord.com/developers/applications) and sign in.
+2. Select **New Application**. Choose the name you want people to see, such as `VLC WatchKit`. Discord uses this application name in the activity heading. To change it later, edit the application name in the Developer Portal and save.
+3. Open **General Information** and copy the **Application ID**. This is the public numeric ID. You can complete this setup without a bot account, bot token, or client secret.
+4. If you want artwork, open **Rich Presence > Art Assets**, upload an image you have permission to use, save it, and copy its asset key, such as `vlc`. Use the lowercase key shown in the portal. [Discord's asset guide](https://docs.discord.com/developers/discord-social-sdk/development-guides/setting-rich-presence#uploading-assets)
+
+## Connect VLC
+
+1. Keep the Discord desktop client running.
+2. In VLC, open **View > VLC WatchKit Settings**.
+3. Paste the **Application ID**. If you uploaded an asset, enter its key in **Large image key**.
+4. Enable **Share playback and pause status** and click **Save**.
+5. Start a video, then open your Discord profile to check the activity. If Discord hides it, check **User Settings > Activity Privacy** and enable activity sharing.
+
+![Example of a working Discord activity card for VLC playback](screenshots/discord-presence-card.png)
+
+The card heading comes from the name you registered in the Developer Portal. The episode and timing lines update as the video plays.
+
+**NumPad `*`** switches publication on or off. The video title line ends in ⏸ when paused. The remaining time stays fixed while paused and updates again when playback resumes. Discord controls how this activity is ranked alongside games and other apps. If the desktop client is closed, the addon reconnects during active playback when Discord becomes available.
+
+## Troubleshooting
+
+- **No card.** Keep the Discord desktop client signed in, check activity sharing, and verify the public Application ID in VLC. Start playback and check your profile. Discord's browser client can display the card once the desktop client publishes it.
+- **No artwork.** Test the connection with the image key blank, then check that the key belongs to the same application. A new asset can take time to appear.
+- **A different activity appears first.** Discord decides which activity to display alongside games and streams. Check your full profile for the VLC activity.
+
+[Discord's direct Rich Presence documentation](https://docs.discord.com/developers/discord-social-sdk/development-guides/setting-rich-presence#rich-presence-without-authentication)
+
+## Playback information
+
+The first line below the application name shows the video title and episode label when available. The next line shows the current position, total duration, playback speed, and estimated time remaining. It uses monospaced Unicode digits to reduce horizontal shifting as the numbers change. The addon sends the position and remaining time together about every five seconds during playback. Seeks and speed changes update the card as soon as the Discord update budget allows.
+
+## Show preview images
+
+To rotate preview images, put an optional UTF-8 text file next to the video. For `Episode.mp4`, name it `Episode.mp4.discord-previews.txt`. List the video minute (starting at zero) followed by a space and a Discord asset key or a public HTTPS image URL:
+
+```text
+0 opening_scene
+1 https://your-image-host.example/episode/minute-01.jpg
+2 https://your-image-host.example/episode/minute-02.jpg
+```
+
+Use stills you have permission to share. You supply and host the images. The addon reads the list once per video and uses the configured VLC icon for minutes without an image. Review the URLs before enabling Discord sharing for a video you received from someone else.

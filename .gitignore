@@ -1,0 +1,25 @@
+/.deps/
+/build/
+/dist/
+# Local editor settings
+/.vs/
+/.vscode/
+/.idea/
+*.user
+*.suo
+
+# Local playback data and test output
+/VLCAddon/
+/vlcrc
+/vlc-qt-interface.ini
+*.discord-previews.txt
+*.log
+*.tmp
+*.dmp
+
+# Local environment and Windows metadata
+.env
+.env.*
+!.env.example
+Thumbs.db
+desktop.ini
