@@ -1,10 +1,18 @@
 # Set up Discord Rich Presence
 
-Install WatchKit using the [installation guide](INSTALL.md) and sign in to the Discord desktop app. The plugin connects to Discord on the same PC using the Application ID you configure below.
+Install WatchKit using the [installation guide](INSTALL.md) and sign in to the Discord desktop app. Follow the illustrated steps below to get the Application ID, then enter it in WatchKit Settings.
 
-## Get an Application ID
+## Get a Discord Application ID
 
-Follow the [shared WatchKit guide](https://github.com/smilekritik/browser-watchkit#get-a-discord-application-id) to create a Discord application and copy its Application ID. Use that same ID in VLC and Chrome.
+Use the same Application ID for WatchKit in Chrome and VLC. If you already have a Discord application for WatchKit, open it and skip to step 3.
+
+1. Sign in to the [Discord Developer Portal](https://discord.com/developers/applications) and choose **New Application**.
+2. Enter `WatchKit` as the name and click **Create**. Discord uses that name in the activity heading.
+3. In your application's sidebar, open **General Information**. Find **Application ID** and click **Copy**.
+
+![Where to create an application and where to copy its ID in the Discord Developer Portal](screenshots/discord-application-id.svg)
+
+The Application ID is the public numeric identifier. For optional fallback artwork, upload an image under **Rich Presence > Art Assets** in the same application and copy its asset key.
 
 ## Connect VLC
 

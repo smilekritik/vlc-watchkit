@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="228" viewBox="0 0 850 228" role="img" aria-labelledby="title desc">
+  <title id="title">Find the Application ID in the Discord Developer Portal</title>
+  <desc id="desc">Create an application named WatchKit. Open General Information, find Application ID, and select Copy.</desc>
+  <rect width="850" height="228" rx="12" fill="#1c2029"/>
+  <g font-family="Segoe UI, Arial, sans-serif" fill="#f2f3f5">
+    <rect x="17" y="17" width="391" height="194" rx="8" fill="#272c37"/>
+    <rect x="425" y="17" width="408" height="194" rx="8" fill="#272c37"/>
+    <text x="36" y="50" font-size="18" font-weight="700">Applications</text>
+    <rect x="244" y="30" width="146" height="33" rx="5" fill="#4752c4"/>
+    <text x="317" y="52" text-anchor="middle" font-size="14" font-weight="700">New Application</text>
+    <text x="36" y="97" font-size="14" font-weight="600">Name</text>
+    <rect x="36" y="108" width="354" height="36" rx="5" fill="#1c2029"/>
+    <text x="48" y="131" font-size="15">WatchKit</text>
+    <rect x="313" y="159" width="77" height="33" rx="5" fill="#4752c4"/>
+    <text x="352" y="181" text-anchor="middle" font-size="14" font-weight="700">Create</text>
+    <text x="444" y="50" font-size="18" font-weight="700">General Information</text>
+    <rect x="444" y="85" width="370" height="107" rx="5" fill="#1c2029" stroke="#a7afff" stroke-width="2"/>
+    <text x="459" y="113" font-size="15" font-weight="700">Application ID</text>
+    <text x="459" y="140" font-size="14" font-family="Consolas, monospace" fill="#ced2dc">123456789012345678</text>
+    <rect x="459" y="151" width="63" height="29" rx="5" fill="#4752c4"/>
+    <text x="490" y="171" text-anchor="middle" font-size="14" font-weight="700">Copy</text>
+  </g>
+</svg>
