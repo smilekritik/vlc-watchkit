@@ -51,7 +51,29 @@ void Discord::disconnect()
     if (event_) ResetEvent(event_);
 }
 
-void Discord::update(std::string id, std::optional<Activity> value)
+void Discord::update(std::string id, std::optional<Activity> value, bool paused)
+{
+    activity_id_ = std::move(id);
+    activity_ = std::move(value);
+    std::optional<PresenceLevel> level;
+    if (activity_ && !activity_id_.empty() && event_)
+        level = paused ? PresenceLevel::vlc_paused : PresenceLevel::vlc_playing;
+    priority_.set(level);
+    sync_priority(true);
+}
+
+void Discord::sync_priority(bool updated)
+{
+    const auto was_yielding = yielding_;
+    yielding_ = priority_.blocked();
+    priority_check_ = priority_.can_yield() ? std::optional(Clock::now() + 500ms) : std::nullopt;
+    if (updated || was_yielding != yielding_) {
+        if (yielding_) set_activity(activity_id_, std::nullopt);
+        else set_activity(activity_id_, activity_);
+    }
+}
+
+void Discord::set_activity(std::string id, const std::optional<Activity>& value)
 {
     if (id_ != id) {
         disconnect();
@@ -252,13 +274,15 @@ bool Discord::take_rejection()
 
 std::optional<Discord::Clock::time_point> Discord::deadline() const
 {
-    if (send_after_ && (!deadline_ || *send_after_ < *deadline_))
-        return send_after_;
-    return deadline_;
+    auto next = deadline_;
+    for (const auto deadline : {send_after_, priority_check_})
+        if (deadline && (!next || *deadline < *next)) next = deadline;
+    return next;
 }
 
 void Discord::pump()
 {
+    if (priority_check_ && Clock::now() >= *priority_check_) sync_priority(false);
     if (event_ && operation_ != Operation::none && WaitForSingleObject(event_, 0) == WAIT_OBJECT_0) {
         DWORD transferred = 0;
         if (GetOverlappedResult(pipe_, &io_, &transferred, FALSE))

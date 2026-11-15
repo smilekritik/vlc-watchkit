@@ -1,5 +1,7 @@
 #pragma once
 
+#include "presence-priority.hpp"
+
 #include <chrono>
 #include <deque>
 #include <optional>
@@ -18,13 +20,16 @@ public:
     using Clock = std::chrono::steady_clock;
     Discord() = default;
     ~Discord();
-    void update(std::string id, std::optional<Activity> activity);
+    void update(std::string id, std::optional<Activity> activity, bool paused = false);
     void pump();
     bool take_acknowledgement();
     bool take_rejection();
     HANDLE event() const { return event_; }
     std::optional<Clock::time_point> deadline() const;
 private:
+    void set_activity(std::string id, const std::optional<Activity>& activity);
+    void sync_priority(bool updated);
+
     enum class Operation { none, read, write };
     void disconnect();
     void connect();
@@ -46,5 +51,10 @@ private:
     unsigned retry_ = 0;
     std::optional<Clock::time_point> deadline_, send_after_;
     std::deque<Clock::time_point> recent_updates_;
+    PresencePriority priority_;
+    std::string activity_id_;
+    std::optional<Activity> activity_;
+    std::optional<Clock::time_point> priority_check_;
+    bool yielding_ = false;
 };
 }

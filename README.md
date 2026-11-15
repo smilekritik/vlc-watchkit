@@ -18,6 +18,8 @@ VLC loads WatchKit automatically when it opens, including when a file is opened 
 
 Use the same Discord application in both editions. Enter the same **Application ID** in Chrome and VLC to publish playback under one name on your Discord profile. You only need to create the application once. [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit)
 
+With VLC 1.1.3 and Chrome 1.5.1 or later, playing media in VLC takes priority over Chrome. Playing browser media takes over when VLC pauses or stops. If both have paused media, VLC keeps the card.
+
 ## Screenshots
 
 ![Discord Rich Presence card showing an episode, playback position, speed, and time remaining](docs/screenshots/discord-presence-card.png)

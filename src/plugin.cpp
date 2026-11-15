@@ -656,7 +656,7 @@ void Addon::publish()
         ? std::chrono::ceil<std::chrono::seconds>(
               std::chrono::system_clock::now().time_since_epoch() + std::chrono::microseconds(remaining)).count()
         : 0;
-    discord_->update(settings.application_id, Activity{"VLC · " + title, detail, image, paused || video_ ? 3 : 2, end});
+    discord_->update(settings.application_id, Activity{"VLC · " + title, detail, image, paused || video_ ? 3 : 2, end}, paused);
 }
 
 void Addon::overlay(const std::wstring& message)
