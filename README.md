@@ -30,15 +30,10 @@ The fullscreen controls show speed and time remaining alongside VLC's usual play
 
 ## Install
 
-1. Install [VLC 3.0.24 x64](https://download.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe) and [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows) on Windows 10 or 11 x64. Close VLC.
-2. Download the Windows x64 ZIP under **Assets** on the [latest release](https://github.com/smilekritik/vlc-watchkit/releases/latest) and extract it.
-3. Open PowerShell 7 as administrator in the extracted folder and run the commands below.
-4. Start VLC and open **View > WatchKit Settings**.
-
-```powershell
-Get-ChildItem ./scripts -Filter *.ps1 -File | Unblock-File
-./scripts/install.ps1
-```
+1. Install [VLC 3.0.24 x64](https://download.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe) on Windows 10 or 11 x64, then close VLC.
+2. Under **Assets** on the [latest release](https://github.com/smilekritik/vlc-watchkit/releases/latest), download the Windows x64 ZIP. Right-click the ZIP and choose **Extract All**.
+3. In the extracted folder, double-click **Install WatchKit.bat** and approve the Windows administrator prompt if it appears. Setup uses Windows PowerShell.
+4. When setup reports success, open VLC and choose **View > WatchKit Settings**.
 
 See [Installation and removal](docs/INSTALL.md) for updating, building from source, custom paths, and troubleshooting.
 

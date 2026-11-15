@@ -4,47 +4,35 @@
 
 - Windows 10 or 11, x64.
 - [VLC 3.0.24 x64 installer](https://download.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe). The plugin builds against this version's internal module API.
-- PowerShell 7. Building from source also requires internet access and the Windows versions of curl and tar.
-
-## Prepare the scripts
-
-Download the Windows x64 ZIP from [Releases](https://github.com/smilekritik/vlc-watchkit/releases/latest) and extract it. For a source build, clone the repository with Git or use **Code > Download ZIP** instead. Open PowerShell 7 (`pwsh`) in the folder containing `README.md` and `scripts`.
-
-Windows may mark the extracted scripts as downloaded files. If PowerShell reports that a script is unsigned, review the scripts and unblock them from the project folder. [PowerShell execution policies](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies)
-
-```powershell
-Get-ChildItem -LiteralPath ./scripts -Filter *.ps1 -File | Unblock-File
-```
+- The release installer uses Windows PowerShell. Building from source requires PowerShell 7, internet access, curl, and tar.
 
 ## Install or update from a release
 
-Close VLC. Open PowerShell 7 as administrator under the Windows account that will use VLC. Run this command in the extracted release folder after preparing the scripts.
+1. Close VLC. Under **Assets** on [Releases](https://github.com/smilekritik/vlc-watchkit/releases/latest), download the Windows x64 ZIP and use **Extract All** in File Explorer.
+2. Double-click **Install WatchKit.bat** in the extracted folder. Approve the Windows administrator prompt under the account that uses VLC, if prompted.
+3. After setup reports success, open VLC and choose **View > WatchKit Settings**.
 
-```powershell
-./scripts/install.ps1
-```
-
-For a custom VLC folder, pass `-VlcDirectory 'D:\Apps\VLC'`. To update an existing installation, extract the new release and run the same command. Your WatchKit settings and bookmarks stay in `%LOCALAPPDATA%\VLCAddon`. Reopen VLC after installation.
+Setup checks the previous installation path, VLC's registered location, and the default Program Files folder. For a custom folder, run `& '.\Install WatchKit.bat' -VlcDirectory 'D:\Apps\VLC'` from PowerShell. To update, extract the new release and run the same installer. Your WatchKit settings and bookmarks stay in `%LOCALAPPDATA%\VLCAddon`.
 
 ## Build and install from source
 
-From PowerShell 7 in the repository root:
+Clone the repository or download the source archive. If Windows marks the scripts as downloaded files, review them and run `Get-ChildItem ./scripts -Filter *.ps1 -File | Unblock-File`. Open PowerShell 7 in the repository root and run:
 
 ```powershell
 ./scripts/build.ps1 -Test
 ```
 
-The first build downloads about 180 MiB into `.deps`, verifies the checksums, and writes `build/libvlc_addon_plugin.dll`. Close VLC. Under the Windows account that will use VLC, open PowerShell 7 as administrator, return to the project folder, and run the installer.
+The first build downloads about 180 MiB into `.deps`, verifies the checksums, and writes `build/libvlc_addon_plugin.dll`. Close VLC and run the installer under the Windows account that will use VLC.
 
 ```powershell
-./scripts/install.ps1
+& '.\Install WatchKit.bat'
 ```
 
 If your VLC is in a custom folder, pass the same path to both scripts:
 
 ```powershell
 ./scripts/build.ps1 -VlcDirectory 'D:\Apps\VLC' -Test
-./scripts/install.ps1 -VlcDirectory 'D:\Apps\VLC'
+& '.\Install WatchKit.bat' -VlcDirectory 'D:\Apps\VLC'
 ```
 
 Make VLC the default Windows app for the video extensions you want to open from File Explorer. The installer registers the module for the current user, enables single-instance enqueue, and replaces VLC's resume prompt with the addon's. Find the addon's settings and bookmark list in **View**.
@@ -70,6 +58,10 @@ Back up `%LOCALAPPDATA%\VLCAddon` to keep your settings, bookmarks, and viewing 
 
 ## Troubleshooting
 
+- **Setup could not find its files.** Download the Windows x64 ZIP under **Assets**, use **Extract All**, and run the batch file in the extracted folder.
+- **VLC version or architecture mismatch.** Install the VLC 3.0.24 x64 build linked above. If you have multiple copies, specify the folder that contains the right `vlc.exe`.
+- **VLC is still running.** Close all VLC windows and exit VLC from the notification area if it is still open. Then rerun the installer.
+- **Plugin cache could not be rebuilt.** Check the installer message and repair VLC if the VLC cache tool fails again. The installer attempts to restore the previous files and prints any path it could not restore.
 - If the addon's menu is missing, close VLC, rerun the installer, and restart VLC. Confirm that you are using the default Qt interface.
 - If the menu exists but its items do nothing, open **Tools > Messages** with verbosity 2. Look for `WatchKit loaded` or errors from `vlc_addon`.
 - If VLC cannot load the module after an upgrade, uninstall the addon before upgrading or use the pinned VLC version until the addon supports the new release.
