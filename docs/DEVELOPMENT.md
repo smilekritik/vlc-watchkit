@@ -13,6 +13,8 @@ The plugin runs in the VLC process. VLC callbacks signal a single worker that ow
 
 The build uses pinned VLC 3.0.24 headers, llvm-mingw, and nlohmann/json. The build derives the import library from the target VLC installation so the same binary supplies the exports at runtime. The build downloads and verifies dependencies under `.deps`.
 
+To package a release, build the plugin from the tagged revision, then run `./scripts/package-release.ps1 -Tag vX.Y.Z`. Upload the ZIP and `SHA256SUMS.txt` from `build/release/vX.Y.Z` to GitHub Releases. The script checks that the installer is at the archive root and includes the plugin, Lua menus, and third-party licenses.
+
 ## Checks
 
 Run the unit suite with `./scripts/build.ps1 -Test`. It covers sequence gaps, ambiguous episodes, ordinary movie filenames, speed steps, time formatting, shortcut persistence, Unicode, and bookmarks whose source file is missing.
