@@ -8,6 +8,7 @@ if not exist "%~dp0scripts\install.ps1" (
   exit /b 1
 )
 title WatchKit for VLC Setup
+set "PSModulePath="
 "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\install.ps1" %*
 set "install_result=%ERRORLEVEL%"
 echo.
