@@ -16,15 +16,15 @@ VLC loads WatchKit automatically when it opens, including when a file is opened 
 
 ## WatchKit for Chrome and VLC
 
-Use the same Discord application in both editions. Enter the same **Application ID** in Chrome and VLC to publish playback under one name on your Discord profile. You only need to create the application once. [WatchKit for Chrome](https://github.com/smilekritik/browser-watchkit)
+Use the shared WatchKit **Application ID** in both editions. Chrome can also import a custom ID from VLC when both run under the same Windows account. [Set up Chrome and VLC together](docs/DISCORD.md#use-watchkit-in-both-vlc-and-chrome)
 
 With VLC 1.1.3 and Chrome 1.5.1 or later, playing media in VLC takes priority over Chrome. Playing browser media takes over when VLC pauses or stops. If both have paused media, VLC keeps the card.
 
 ## Screenshots
 
-![Discord Rich Presence card showing an episode, playback position, speed, and time remaining](docs/screenshots/discord-presence-card.png)
+![Discord Rich Presence card showing an episode from VLC](docs/screenshots/discord-presence-card.png)
 
-Discord shows what you're watching and how much time is left at the current playback speed.
+This example card is from an earlier release. See [Playback information](docs/DISCORD.md#playback-information) for the current timing layout.
 
 ![VLC's dark fullscreen controls with playback speed and time remaining in the center](docs/screenshots/vlc-fullscreen-controls.png)
 
@@ -33,9 +33,9 @@ The fullscreen controls show speed and time remaining alongside VLC's usual play
 ## Install
 
 1. Install [VLC 3.0.24 x64](https://download.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe) on Windows 10 or 11 x64, then close VLC.
-2. Under **Assets** on the [latest release](https://github.com/smilekritik/vlc-watchkit/releases/latest), download the Windows x64 ZIP. Right-click the ZIP and choose **Extract All**.
+2. Under **Assets** on the [latest release](https://github.com/smilekritik/vlc-watchkit/releases/latest), download `VLC-WatchKit-…-win-x64.zip`. Right-click the ZIP and choose **Extract All**.
 3. In the extracted folder, double-click **Install WatchKit.bat** and approve the Windows administrator prompt if it appears. Setup uses Windows PowerShell.
-4. When setup reports success, open VLC and choose **View > WatchKit Settings**.
+4. When setup reports success, open VLC and choose **View → WatchKit Settings**. Follow [Connect VLC to Discord](docs/DISCORD.md#connect-vlc) to use the shared application.
 
 See [Installation and removal](docs/INSTALL.md) for updating, building from source, custom paths, and troubleshooting.
 
@@ -78,9 +78,9 @@ NumPad 9 captures the timestamp, pauses a playing video, and opens the comment w
 
 ## Discord
 
-Discord sharing is optional. Follow [Discord setup from scratch](docs/DISCORD.md) to create an application, copy its public Application ID, add optional artwork, and verify your first status using the Discord desktop app.
+Discord sharing is optional. Use the ready-to-use WatchKit application to share playback. [Connect VLC to Discord](docs/DISCORD.md#connect-vlc)
 
-The card shows the video title, episode, current position, duration, speed, and remaining time at that speed. On pause, a ⏸ icon appears and the playback times freeze. Press **NumPad `*`** to clear the card and keep sharing off until you turn it back on. Stopping or closing VLC also clears the card. Viewing history and bookmark comments stay on your computer. Optional [frame previews](docs/DISCORD.md#show-preview-images) send individual frames to an uploader you configure.
+The card shows the title, episode when available, and playback position. At `1×`, Discord shows a progress bar for playing media with a known duration. At other speeds, the card shows text such as `01:47 / 03:06 · Speed 1.5×`. On pause, the position freezes. See the real time left in VLC's controls or press **T**. Press **NumPad `*`** to clear the card and keep sharing off until you turn it back on. Stopping or closing VLC also clears the card. Viewing history and bookmark comments stay on your computer. Optional [frame previews](docs/DISCORD.md#show-preview-images) send individual frames to an uploader you configure.
 
 ## Contributing
 
@@ -89,3 +89,5 @@ See [Architecture and tests](docs/DEVELOPMENT.md) for the source layout, build, 
 Report bugs with your Windows and VLC versions, active theme, reproduction steps, and relevant lines from VLC's **Tools > Messages** window. Remove private filenames and paths from shared logs.
 
 Released under the [GNU General Public License v2.0 or later](LICENSE). WatchKit is an independent project for VLC media player.
+
+To choose your own activity name or artwork, [set up your own Discord application](docs/DISCORD.md#get-a-discord-application-id).

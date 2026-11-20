@@ -497,14 +497,16 @@ void Addon::playback(unsigned flags)
     if (active) {
         const auto now = Clock::now();
         const auto current = time();
+        const auto duration = length();
         const auto current_speed = speed();
+        if (duration != last_length_) refresh = true;
         if ((flags & position) && last_speed_ > 0) {
             const auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - last_sample_).count();
             const auto expected = last_position_ + (playing() ? elapsed * current_speed / 100 : 0);
             if (std::abs(current - expected) > 2 * second) refresh = true;
         }
         last_position_ = current;
-        last_length_ = length();
+        last_length_ = duration;
         last_sample_ = now;
         last_speed_ = current_speed;
     }
@@ -618,7 +620,7 @@ void Addon::publish()
         return;
     }
     if (video_) update_frame_preview(running);
-    discord_refresh_ = video_ && (running || frame_upload_.valid()) ? std::optional(Clock::now() + 5s) : std::nullopt;
+    discord_refresh_ = running || (video_ && frame_upload_.valid()) ? std::optional(Clock::now() + 5s) : std::nullopt;
     auto* item = input_GetItem(input_.get());
     auto title = take(input_item_GetTitle(item));
     auto detail = take(input_item_GetArtist(item));
@@ -640,23 +642,26 @@ void Addon::publish()
     if (title.empty()) title = video_ ? "Video" : "Audio";
     auto image = settings.large_image;
     const auto current = time();
+    const auto sampled_at = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     const auto duration = length();
     const auto current_speed = speed();
+    const auto timestamps = activity_timestamps(current_speed, duration, current, sampled_at, running);
     if (video_) {
         if (!previews_) previews_ = load_preview_images(fs::path(path_));
         image = preview_image(*previews_, current, uploaded_frame_.empty() ? image : uploaded_frame_);
         if (!detail.empty()) title = activity_video_title(title, detail) + " \xC2\xB7 " + detail;
-        if (paused) title += " \xC2\xB7 " + utf8(L"\u23f8\ufe0e");
-        detail = utf8(activity_playback_status(current_speed, duration, current));
-    } else if (paused) {
-        detail = detail.empty() ? "Paused" : "Paused \xC2\xB7 " + detail;
+        detail = timestamps.start > 0 ? "" : utf8(activity_playback_status(current_speed, duration, current));
+    } else {
+        if (timestamps.start == 0 && (duration > 0 || current_speed != 100)) {
+            const auto timing = utf8(activity_playback_status(current_speed, duration, current));
+            detail = detail.empty() ? timing : timing + " \xC2\xB7 " + detail;
+        }
     }
-    const auto remaining = remaining_playback_time(reported_speed(), duration, current);
-    const auto end = !video_ && !paused && remaining > 0
-        ? std::chrono::ceil<std::chrono::seconds>(
-              std::chrono::system_clock::now().time_since_epoch() + std::chrono::microseconds(remaining)).count()
-        : 0;
-    discord_->update(settings.application_id, Activity{"VLC · " + title, detail, image, paused || video_ ? 3 : 2, end}, paused);
+    const auto image_text = image.empty() ? std::string{} : utf8(playback_time_left(current_speed, duration, current));
+    discord_->update(settings.application_id, Activity{
+        "VLC · " + title, detail, image, paused || video_ ? 3 : 2, timestamps, image_text, paused
+    });
 }
 
 void Addon::overlay(const std::wstring& message)

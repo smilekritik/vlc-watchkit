@@ -1,6 +1,7 @@
 #pragma once
 
 #include "presence-priority.hpp"
+#include "model.hpp"
 
 #include <chrono>
 #include <deque>
@@ -12,7 +13,9 @@ namespace addon {
 struct Activity {
     std::string title, detail, image;
     int type = 3;
-    std::int64_t end = 0;
+    ActivityTimestamps timestamps;
+    std::string image_text;
+    bool paused = false;
 };
 
 class Discord {
@@ -20,7 +23,7 @@ public:
     using Clock = std::chrono::steady_clock;
     Discord() = default;
     ~Discord();
-    void update(std::string id, std::optional<Activity> activity, bool paused = false);
+    void update(std::string id, std::optional<Activity> activity);
     void pump();
     bool take_acknowledgement();
     bool take_rejection();

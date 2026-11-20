@@ -8,11 +8,13 @@
 
 ## Install or update from a release
 
-1. Close VLC. Under **Assets** on [Releases](https://github.com/smilekritik/vlc-watchkit/releases/latest), download the Windows x64 ZIP and use **Extract All** in File Explorer.
+1. Close VLC. Under **Assets** on [Releases](https://github.com/smilekritik/vlc-watchkit/releases/latest), download `VLC-WatchKit-…-win-x64.zip` and use **Extract All** in File Explorer.
 2. Double-click **Install WatchKit.bat** in the extracted folder. Approve the Windows administrator prompt under the account that uses VLC, if prompted.
 3. After setup reports success, open VLC and choose **View > WatchKit Settings**.
 
 Setup checks the previous installation path, VLC's registered location, and the default Program Files folder. For a custom folder, run `& '.\Install WatchKit.bat' -VlcDirectory 'D:\Apps\VLC'` from PowerShell. To update, extract the new release and run the same installer. Your WatchKit settings and bookmarks stay in `%LOCALAPPDATA%\VLCAddon`.
+
+After installation or an update, see [Discord setup](DISCORD.md) to enable sharing and verify the progress display. Update the VLC plugin with its own installer. For WatchKit in Chrome, update the extension and its Windows bridge with the [Chrome update instructions](https://github.com/smilekritik/browser-watchkit#update-or-remove).
 
 ## Build and install from source
 

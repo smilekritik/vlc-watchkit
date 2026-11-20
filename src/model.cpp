@@ -210,13 +210,18 @@ static std::wstring format_speed(int rate)
     return speed;
 }
 
+std::wstring playback_time_left(int rate, MediaTime length, MediaTime position)
+{
+    if (length <= 0 || rate <= 0) return {};
+    const auto remaining = remaining_playback_time(rate, length, position);
+    return clock_duration((remaining + second - 1) / second * second) + L" left";
+}
+
 std::wstring playback_status(int rate, MediaTime length, MediaTime position)
 {
     auto result = format_speed(rate);
-    if (length > 0) {
-        const auto remaining = remaining_playback_time(rate, length, position);
-        result += L"  \u00b7  " + clock_duration((remaining + second - 1) / second * second) + L" left";
-    }
+    const auto left = playback_time_left(rate, length, position);
+    if (!left.empty()) result += L"  \u00b7  " + left;
     return result;
 }
 
@@ -229,34 +234,24 @@ static std::wstring activity_clock(MediaTime time, MediaTime maximum)
 std::wstring activity_playback_status(int rate, MediaTime length, MediaTime position)
 {
     const auto elapsed = length > 0 ? std::min(position, length) : position;
-    const auto speed = format_speed(rate);
-    const auto gap = speed.size() < format_speed(max_video_speed).size() ? L' ' : L'\u2009';
-
     auto summary = activity_clock(elapsed, length);
     if (length > 0) summary += L" / " + activity_clock(length, length);
-    summary += gap;
-    summary += L'\u00b7';
-    summary += gap;
-    summary += speed;
-    if (length > 0) {
-        const auto round_up = [](MediaTime time) { return (time + second - 1) / second * second; };
-        const auto remaining = round_up(remaining_playback_time(rate, length, elapsed));
-        const auto maximum = round_up(remaining_playback_time(rate, length, 0));
-        summary += L" \u00b7 " + activity_clock(remaining, maximum) + L" left";
+    if (rate != 100) {
+        auto speed = format_speed(rate);
+        if (rate % 100 == 0) speed.erase(speed.size() - 4, 3);
+        else if (rate % 10 == 0) speed.erase(speed.size() - 2, 1);
+        summary += L" \u00b7 Speed " + speed;
     }
+    return summary;
+}
 
-    // Mathematical monospace digits are surrogate pairs in Windows UTF-16.
-    std::wstring display;
-    display.reserve(summary.size() * 2);
-    for (const auto character : summary) {
-        if (character >= L'0' && character <= L'9') {
-            display += L'\xd835';
-            display += static_cast<wchar_t>(0xdff6 + character - L'0');
-        } else {
-            display += character;
-        }
-    }
-    return display;
+ActivityTimestamps activity_timestamps(int rate, MediaTime length, MediaTime position, MediaTime sampled_at, bool playing)
+{
+    if (!playing || rate != 100 || length < second || position < 0 || position >= length || sampled_at <= position)
+        return {};
+    const auto start = (sampled_at - position) / second;
+    const auto duration = length / second + (length % second >= second / 2);
+    return start > 0 ? ActivityTimestamps{start, start + duration} : ActivityTimestamps{};
 }
 
 std::wstring playback_summary(int rate, MediaTime length, MediaTime position, bool playing)

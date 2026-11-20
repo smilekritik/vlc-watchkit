@@ -51,13 +51,13 @@ void Discord::disconnect()
     if (event_) ResetEvent(event_);
 }
 
-void Discord::update(std::string id, std::optional<Activity> value, bool paused)
+void Discord::update(std::string id, std::optional<Activity> value)
 {
     activity_id_ = std::move(id);
     activity_ = std::move(value);
     std::optional<PresenceLevel> level;
     if (activity_ && !activity_id_.empty() && event_)
-        level = paused ? PresenceLevel::vlc_paused : PresenceLevel::vlc_playing;
+        level = activity_->paused ? PresenceLevel::vlc_paused : PresenceLevel::vlc_playing;
     priority_.set(level);
     sync_priority(true);
 }
@@ -101,8 +101,17 @@ void Discord::set_activity(std::string id, const std::optional<Activity>& value)
     }
     json activity{{"type", value->type}, {"details", clean(value->title)}};
     if (!value->detail.empty()) activity["state"] = clean(value->detail);
-    if (!value->image.empty()) activity["assets"] = {{"large_image", value->image}};
-    if (value->end > 0) activity["timestamps"] = {{"end", value->end}};
+    if (!value->image.empty()) {
+        activity["assets"]["large_image"] = value->image;
+        if (!value->image_text.empty()) activity["assets"]["large_text"] = clean(value->image_text);
+    }
+    if (value->paused) {
+        activity["assets"]["small_image"] = id_ == "1056962833218293800" ? "pauselight"
+            : "https://cdn.discordapp.com/app-assets/1056962833218293800/1056963729805295677.png";
+        activity["assets"]["small_text"] = "Paused";
+    }
+    const auto [start, end] = value->timestamps;
+    if (start > 0 && end > start) activity["timestamps"] = {{"start", start}, {"end", end}};
     auto payload = activity.dump(-1, ' ', false, json::error_handler_t::replace);
     if (wanted_ == payload && (deadline_ || pipe_ != INVALID_HANDLE_VALUE))
         return;

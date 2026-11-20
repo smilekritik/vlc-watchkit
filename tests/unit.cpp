@@ -75,20 +75,39 @@ void persistence(const fs::path& directory)
 void rich_presence(const fs::path& directory)
 {
     check(activity_playback_status(125, 22 * 60 * second, 8 * 60 * second) ==
-              L"\U0001d7f6\U0001d7fe:\U0001d7f6\U0001d7f6 / \U0001d7f8\U0001d7f8:\U0001d7f6\U0001d7f6 \u00b7 \U0001d7f7.\U0001d7f8\U0001d7fb\u00d7 \u00b7 \U0001d7f7\U0001d7f7:\U0001d7f7\U0001d7f8 left",
-          "format elapsed time, rate and remaining time on the Discord state line");
+              L"08:00 / 22:00 \u00b7 Speed 1.25\u00d7",
+          "share the media clock and non-default speed");
+    check(activity_playback_status(150, 186 * second, 107 * second) ==
+              L"01:47 / 03:06 \u00b7 Speed 1.5\u00d7",
+          "keep the actual duration at 1.5x");
     check(activity_playback_status(1000, 22 * 60 * second, 8 * 60 * second) ==
-              L"\U0001d7f6\U0001d7fe:\U0001d7f6\U0001d7f6 / \U0001d7f8\U0001d7f8:\U0001d7f6\U0001d7f6\u2009\u00b7\u2009\U0001d7f7\U0001d7f6.\U0001d7f6\U0001d7f6\u00d7 \u00b7 \U0001d7f6\U0001d7f7:\U0001d7f8\U0001d7fa left",
-          "keep the speed field width when the integer part gains a digit");
+              L"08:00 / 22:00 \u00b7 Speed 10\u00d7",
+          "drop trailing decimal zeros for integer speeds");
     check(activity_playback_status(100, 3601 * second, 2 * second) ==
-              L"\U0001d7f6:\U0001d7f6\U0001d7f6:\U0001d7f6\U0001d7f8 / \U0001d7f7:\U0001d7f6\U0001d7f6:\U0001d7f6\U0001d7f7 \u00b7 \U0001d7f7.\U0001d7f6\U0001d7f6\u00d7 \u00b7 \U0001d7f6:\U0001d7fb\U0001d7ff:\U0001d7fb\U0001d7ff left",
-          "keep hour fields when the countdown drops below one hour");
+              L"0:00:02 / 1:00:01",
+          "keep hour fields and hide normal speed");
     check(playback_status(125, 22 * 60 * second, 8 * 60 * second) == L"1.25\u00d7  \u00B7  11:12 left",
-          "format speed and remaining time on their own line");
+          "keep the speed and remaining time in VLC's controls");
     check(remaining_playback_time(125, 22 * 60 * second, 8 * 60 * second) == 672 * second,
-          "adjust Discord countdown for playback speed");
+          "adjust the local countdown for playback speed");
     check(remaining_playback_time(125, 3 * second, 4 * second) == 0, "clamp completed videos");
     check(remaining_playback_time(125, 0, 3 * second) == 0, "omit countdown for unknown duration");
+    check(playback_time_left(150, 186 * second, 107 * second) == L"00:53 left",
+          "use real time left at the chosen speed in the artwork tooltip");
+    check(playback_time_left(100, 0, 107 * second).empty(), "omit the artwork tooltip for unknown duration");
+
+    constexpr MediaTime sample = 1'800'000'000 * second;
+    constexpr MediaTime length = 186 * second;
+    const auto progress = activity_timestamps(100, length, 107 * second, sample, true);
+    check(progress.start == 1'799'999'893 && progress.end == 1'800'000'079, "use the media clock as the Discord progress range");
+    const auto next = activity_timestamps(100, length, 112 * second, sample + 5 * second, true);
+    check(next.start == progress.start && next.end == progress.end, "keep the same range during steady playback");
+    const auto seek = activity_timestamps(100, length, 150 * second, sample, true);
+    check(seek.start == 1'799'999'850 && seek.end == 1'800'000'036, "move the range when the player seeks");
+    check(activity_timestamps(150, length, 107 * second, sample, true).end == 0 &&
+          activity_timestamps(100, length, 107 * second, sample, false).end == 0 &&
+          activity_timestamps(100, 0, 107 * second, sample, true).end == 0,
+          "omit the moving progress range at non-default speed, on pause, and without a duration");
 
     auto file = directory / L"Episode.mp4";
     std::ofstream(directory / L"Episode.mp4.discord-previews.txt")

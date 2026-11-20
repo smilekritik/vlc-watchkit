@@ -35,8 +35,13 @@ using PreviewImages = std::map<MediaTime, std::string>;
 PreviewImages load_preview_images(const fs::path& file);
 std::string preview_image(const PreviewImages& images, MediaTime position, std::string_view fallback);
 MediaTime remaining_playback_time(int rate, MediaTime length, MediaTime position);
+std::wstring playback_time_left(int rate, MediaTime length, MediaTime position);
 std::wstring playback_status(int rate, MediaTime length, MediaTime position);
 std::wstring activity_playback_status(int rate, MediaTime length, MediaTime position);
+struct ActivityTimestamps {
+    std::int64_t start = 0, end = 0;
+};
+ActivityTimestamps activity_timestamps(int rate, MediaTime length, MediaTime position, MediaTime sampled_at, bool playing);
 std::wstring clock_duration(MediaTime time);
 std::wstring playback_summary(int rate, MediaTime length, MediaTime position, bool playing);
 std::string utf8(std::wstring_view value);
